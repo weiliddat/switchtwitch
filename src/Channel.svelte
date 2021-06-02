@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { debounce } from "lodash";
+  import debounce from "lodash/debounce";
 
   export let channelName = "";
 
