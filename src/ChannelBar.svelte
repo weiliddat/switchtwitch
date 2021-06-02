@@ -3,7 +3,7 @@
   import Channel from "./Channel.svelte";
 
   let channelName: string = "";
-  let channelNames: string[] = [];
+  let channelNames: string[] = ["guhrl"];
 
   const addChannel = () => {
     channelNames = [...channelNames, channelName];
@@ -15,6 +15,7 @@
   {#each channelNames as c}
     <Channel channelName={c} />
   {/each}
+
   <input
     type="text"
     id="channel-input"
@@ -27,8 +28,7 @@
 
 <style>
   #channel-bar {
-    min-width: 420px;
-    width: 15%;
+    width: 420px;
     height: 100%;
 
     border-right: 2px solid #fff;
