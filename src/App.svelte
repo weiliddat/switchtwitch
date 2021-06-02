@@ -3,31 +3,66 @@
 
   let channelName: string = "";
 
-  const loadPlayer = () => {
-    const options: Twitch.PlayerOptions = {
-      width: 600,
-      height: 400,
+  const loadPlayerToChannelBar = (e) => {
+    const options: Twitch.EmbedOptions = {
+      width: 400,
+      height: 360,
       autoplay: true,
-      muted: false,
+      muted: true,
       parent: ["switchtwitch.com"],
       channel: channelName,
+      layout: "video",
     };
 
-    const player = new Twitch.Player("main-player", options);
+    channelName = "";
 
-    player.setVolume(0.5);
+    const embed = new Twitch.Embed("channels", options);
+
+    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
+      console.log(embed.getPlayer().getQualities());
+
+      embed.getPlayer().setQuality("360p");
+    });
   };
 </script>
 
 <main>
+  <div id="channel-bar">
+    <div id="channels" />
+    <input
+      type="text"
+      id="channel-input"
+      use:keyHandler
+      bind:value={channelName}
+      on:keydown_Enter={loadPlayerToChannelBar}
+      placeholder="Add Channel Name"
+    />
+  </div>
   <div id="main-player" />
-  <input
-    type="text"
-    use:keyHandler
-    bind:value={channelName}
-    on:keydown_Enter={loadPlayer}
-  />
 </main>
 
 <style>
+  main {
+    height: 100%;
+    width: 100%;
+  }
+
+  #channel-bar {
+    min-width: 420px;
+    width: 15%;
+    height: 100%;
+
+    border-right: 2px solid #fff;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  #channel-input {
+    margin: 20px 0;
+  }
 </style>

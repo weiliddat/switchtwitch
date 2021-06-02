@@ -1,33 +1,47 @@
 declare namespace Twitch {
   class Embed {
-    /* If true, the player can go full screen. Default: true. */
-    allowfullscreen: boolean;
-    /* If true, the video starts playing automatically, without the user clicking play. The exception is mobile devices, on which video cannot be played without user interaction. Default: true. */
-    autoplay: boolean;
-    /* Name of the chat room and channel (live content only). */
-    channel: string;
-    /* The VOD collection to play. If you use this, you may also specify an initial video in the VOD collection, otherwise playback will begin with the first video in the collection. All VODs are auto-played. Chat replay is not supported. Example parameters object: { video: "124085610", collection: "GMEgKwTQpRQwyA" } */
-    collection: string;
+    constructor(id: string, opts: EmbedOptions);
+
+    getPlayer(): Player;
+
+    addEventListener(
+      type: string,
+      listener: any,
+    ): void;
+
+    static VIDEO_PLAY: string;
+    static VIDEO_READY: string;
+  }
+
+  interface EmbedOptions {
+    /* Required if your site is embedded on any domain(s) other than the one that instantiates the Twitch embed.Example parent parameter: ["streamernews.example.com", "embed.example.com"]. */
+    parent: string[];
+    /* Maximum width of the rendered element, in pixels. This can be expressed as a percentage, by passing a string like 100%. Minimum: 340. Default: 940. */
+    width: number | string;
     /* Height of the rendered element, in pixels. This can be expressed as a percentage, by passing a string like 50%. Minimum: 400. Default: 480. */
     height: number | string;
+    /* Name of the chat room and channel (live content only). */
+    channel: string;
+    /* If true, the player can go full screen. Default: true. */
+    allowfullscreen?: boolean;
+    /* If true, the video starts playing automatically, without the user clicking play. The exception is mobile devices, on which video cannot be played without user interaction. Default: true. */
+    autoplay?: boolean;
+    /* The VOD collection to play. If you use this, you may also specify an initial video in the VOD collection, otherwise playback will begin with the first video in the collection. All VODs are auto-played. Chat replay is not supported. Example parameters object: { video: "124085610", collection: "GMEgKwTQpRQwyA" } */
+    collection?: string;
     /**
      * Determines the screen layout. Valid values:
      * - video-with-chat
      * - side-by-side
      */
-    layout: string;
+    layout?: "video-with-chat" | "video";
     /* Specifies whether the initial state of the video is muted. Default: false. */
-    muted: boolean;
-    /* Required if your site is embedded on any domain(s) other than the one that instantiates the Twitch embed.Example parent parameter: ["streamernews.example.com", "embed.example.com"]. */
-    parent: string[];
+    muted?: boolean;
     /* The Twitch embed color theme to use. Valid values: light or dark. Default: dark. */
-    theme: string;
+    theme?: string;
     /* Time in the video where playback starts. Specifies hours, minutes, and seconds. Default: 0h0m0s (the start of the video). */
-    time: string;
+    time?: string;
     /* ID of a VOD to play. Chat replay is not supported. */
-    video: string;
-    /* Maximum width of the rendered element, in pixels. This can be expressed as a percentage, by passing a string like 100%. Minimum: 340. Default: 940. */
-    width: number | string;
+    video?: string;
   }
 
   class Player {
@@ -57,6 +71,8 @@ declare namespace Twitch {
     getQuality(): string;
     getVideo(): string;
     isPaused(): boolean;
+
+    addEventListener(): any;
   }
 
   interface PlayerOptions {
