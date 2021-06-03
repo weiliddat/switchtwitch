@@ -15,12 +15,14 @@
     viewIntent = true;
 
     embed.getPlayer().setQuality("480p");
+    embed.getPlayer().setMuted(false);
   };
 
   const previewMouseout = () => {
     viewIntent = false;
 
     embed.getPlayer().setQuality("360p");
+    embed.getPlayer().setMuted(true);
   };
 
   const handleView = () => {
@@ -56,6 +58,7 @@
       const player = embed.getPlayer();
 
       player.setQuality("360p");
+      player.setVolume(0.5);
     });
   });
 </script>
