@@ -29,7 +29,6 @@
 <style>
   #channel-bar {
     width: 420px;
-    height: 100%;
 
     border-right: 2px solid #fff;
 

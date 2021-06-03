@@ -4,13 +4,12 @@ declare namespace Twitch {
 
     getPlayer(): Player;
 
-    addEventListener(
-      type: string,
-      listener: any,
-    ): void;
+    addEventListener(type: string, listener: any): void;
 
     static VIDEO_PLAY: string;
     static VIDEO_READY: string;
+    static ONLINE: string;
+    static OFFLINE: string;
   }
 
   interface EmbedOptions {
@@ -72,7 +71,17 @@ declare namespace Twitch {
     getVideo(): string;
     isPaused(): boolean;
 
-    addEventListener(): any;
+    addEventListener(type: string, listener: any): void;
+
+    static CAPTIONS: string;
+    static ENDED: string;
+    static PAUSE: string;
+    static PLAY: string;
+    static PLAYBACK_BLOCKED: string;
+    static PLAYING: string;
+    static OFFLINE: string;
+    static ONLINE: string;
+    static READY: string;
   }
 
   interface PlayerOptions {

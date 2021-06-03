@@ -6,13 +6,15 @@
 
   let playerWrapper: HTMLElement;
   let isPreview = false;
-  let isPreviewing = false;
-  let transitionMs = 500;
+  let transitionMs = 400;
   let embed: Twitch.Embed;
+  let initialX: number;
+  let initialY: number;
 
   const previewChannel = () => {
     isPreview = true;
-    isPreviewing = true;
+
+    embed.getPlayer().setQuality("720p");
 
     transformPlayer();
   };
@@ -20,31 +22,37 @@
   const stopPreview = () => {
     isPreview = false;
 
-    unTransformPlayer();
+    embed.getPlayer().setQuality("160p");
 
-    setTimeout(() => {
-      isPreviewing = false;
-    }, transitionMs);
+    unTransformPlayer();
   };
 
   const transformPlayer = debounce(
     () => {
       const rect = playerWrapper.getBoundingClientRect();
-      const middleY = window.innerHeight / 2 - rect.height / 2 - rect.y;
-      const middleX = 480;
-      playerWrapper.style.transform = `matrix(1.5, 0, 0, 1.5, ${middleX}, ${middleY})`;
+      console.log(rect);
+      const deltaY = window.innerHeight / 2 - rect.height / 2 - initialY;
+      const deltaX = 420 + rect.width / 3;
+      playerWrapper.style.transform = `matrix(1.5, 0, 0, 1.5, ${deltaX}, ${deltaY})`;
+      playerWrapper.style.position = "fixed";
     },
     transitionMs * 2,
     {
       leading: true,
+      trailing: false,
     },
   );
 
   const unTransformPlayer = () => {
     playerWrapper.style.transform = "";
+    playerWrapper.style.position = "";
   };
 
   onMount(() => {
+    const rect = playerWrapper.getBoundingClientRect();
+    initialX = rect.x;
+    initialY = rect.y;
+
     const options: Twitch.EmbedOptions = {
       width: 400,
       height: 360,
@@ -57,56 +65,44 @@
 
     embed = new Twitch.Embed(`channel-${channelName}`, options);
 
-    // @todo rework events - currently looping since set quality triggers video_play
-    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
-      // console.log(`Checking for qualities`)
-      // const qualities = embed.getPlayer().getQualities();
-      // console.log({ qualities });
-      // embed.getPlayer().setQuality("360p");
-    });
-    
-    // maybe VIDEO_READY
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
-      // console.log(`Checking for qualities`)
-      // const qualities = embed.getPlayer().getQualities();
-      // console.log({ qualities });
-      embed.getPlayer().setQuality("360p");
+      const player = embed.getPlayer();
+
+      player.setQuality("160p");
     });
   });
 </script>
 
-<div class="channel" class:isPreview>
+<div class="channel">
   <div
     class="channel-overlay"
+    class:isPreview
     on:mouseover={previewChannel}
     on:mouseout={stopPreview}
-  />
-  <!-- <div class="channel-click-text" class:isPreview>
-    Click to play on main player
-  </div> -->
+  >
+    <div class="channel-overlay-delete">
+      <span class="material-icons">delete</span>
+    </div>
+
+    <div class="channel-overlay-preview">
+      <span class="material-icons">visibility</span>
+    </div>
+  </div>
 
   <div
     id="channel-{channelName}"
     class="channel-player-wrapper"
-    class:isPreview
-    class:isPreviewing
     bind:this={playerWrapper}
   />
-
-  <!-- <div class="channel-player-controls">
-    <span class="material-icons material-icons-outlined">delete</span>
-  </div> -->
 </div>
 
 <style>
   .channel {
+    flex: 0 0 1;
     width: 400px;
-    min-width: 400px;
     height: 360px;
-    min-height: 360px;
     margin: 5px;
     position: relative;
-    cursor: pointer;
   }
 
   .channel-overlay {
@@ -116,43 +112,20 @@
     top: 0;
     left: 0;
     z-index: 10;
+
+    transition: opacity 0.4s;
+    opacity: 0;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    cursor: pointer;
   }
 
-  .channel.isPreview {
-    background: rgba(0, 0, 0, 0.5);
+  .channel-overlay.isPreview {
+    opacity: 0.8;
   }
 
   .channel-player-wrapper {
-    transition: transform 0.5s;
-  }
-
-  .channel-player-wrapper.isPreviewing {
-    position: fixed;
-  }
-
-  .channel-player-wrapper.isPreview {
-    position: fixed;
-    /* transform: translate(480px, 0); */
-  }
-
-  .channel-click-text {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    text-align: center;
-
-    opacity: 0;
-
-    transition: opacity 0.5s;
-  }
-
-  .channel-click-text.isPreview {
-    opacity: 1;
-  }
-
-  .channel-player-controls {
-    width: 100%;
-    height: 30px;
+    transition: transform 0.4s;
   }
 </style>
