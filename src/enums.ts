@@ -1,0 +1,4 @@
+export enum ChannelEvent {
+  DELETE_CHANNEL = 'DELETE_CHANNEL',
+  VIEW_CHANNEL = 'VIEW_CHANNEL',
+}

@@ -6,14 +6,25 @@
   let channelNames: string[] = ["guhrl"];
 
   const addChannel = () => {
-    channelNames = [...channelNames, channelName];
+    if (channelName && !channelNames.includes(channelName)) {
+      channelNames = [...channelNames, channelName];
+    }
+
     channelName = "";
+  };
+
+  const deleteChannel = ({ detail: channelName }) => {
+    channelNames = channelNames.filter(c => c !== channelName);
   };
 </script>
 
 <div id="channel-bar">
   {#each channelNames as c}
-    <Channel channelName={c} />
+    <Channel
+      channelName={c}
+      on:DELETE_CHANNEL={deleteChannel}
+      on:VIEW_CHANNEL
+    />
   {/each}
 
   <input

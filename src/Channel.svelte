@@ -1,58 +1,45 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import debounce from "lodash/debounce";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { ChannelEvent } from "./enums";
 
   export let channelName = "";
 
-  let playerWrapper: HTMLElement;
-  let isPreview = false;
-  let transitionMs = 400;
-  let embed: Twitch.Embed;
-  let initialX: number;
-  let initialY: number;
+  const dispatch = createEventDispatcher();
 
-  const previewChannel = () => {
-    isPreview = true;
+  let playerWrapper: HTMLElement;
+  let viewIntent = false;
+  let deleteIntent = false;
+  let embed: Twitch.Embed;
+
+  const previewMouseover = () => {
+    viewIntent = true;
 
     embed.getPlayer().setQuality("720p");
-
-    transformPlayer();
   };
 
-  const stopPreview = () => {
-    isPreview = false;
+  const previewMouseout = () => {
+    viewIntent = false;
 
     embed.getPlayer().setQuality("160p");
-
-    unTransformPlayer();
   };
 
-  const transformPlayer = debounce(
-    () => {
-      const rect = playerWrapper.getBoundingClientRect();
-      console.log(rect);
-      const deltaY = window.innerHeight / 2 - rect.height / 2 - initialY;
-      const deltaX = 420 + rect.width / 3;
-      playerWrapper.style.transform = `matrix(1.5, 0, 0, 1.5, ${deltaX}, ${deltaY})`;
-      playerWrapper.style.position = "fixed";
-    },
-    transitionMs * 2,
-    {
-      leading: true,
-      trailing: false,
-    },
-  );
+  const handleView = () => {
+    dispatch(ChannelEvent.VIEW_CHANNEL, channelName);
+  };
 
-  const unTransformPlayer = () => {
-    playerWrapper.style.transform = "";
-    playerWrapper.style.position = "";
+  const deleteMouseover = () => {
+    deleteIntent = true;
+  };
+
+  const deleteMouseout = () => {
+    deleteIntent = false;
+  };
+
+  const handleDelete = () => {
+    dispatch(ChannelEvent.DELETE_CHANNEL, channelName);
   };
 
   onMount(() => {
-    const rect = playerWrapper.getBoundingClientRect();
-    initialX = rect.x;
-    initialY = rect.y;
-
     const options: Twitch.EmbedOptions = {
       width: 400,
       height: 360,
@@ -74,17 +61,22 @@
 </script>
 
 <div class="channel">
-  <div
-    class="channel-overlay"
-    class:isPreview
-    on:mouseover={previewChannel}
-    on:mouseout={stopPreview}
-  >
-    <div class="channel-overlay-delete">
+  <div class="channel-overlay">
+    <div
+      class="channel-overlay-delete"
+      on:mouseover={deleteMouseover}
+      on:mouseout={deleteMouseout}
+      on:click={handleDelete}
+    >
       <span class="material-icons">delete</span>
     </div>
 
-    <div class="channel-overlay-preview">
+    <div
+      class="channel-overlay-preview"
+      on:mouseover={previewMouseover}
+      on:mouseout={previewMouseout}
+      on:click={handleView}
+    >
       <span class="material-icons">visibility</span>
     </div>
   </div>
@@ -92,17 +84,31 @@
   <div
     id="channel-{channelName}"
     class="channel-player-wrapper"
+    class:viewIntent
+    class:deleteIntent
     bind:this={playerWrapper}
   />
 </div>
 
 <style>
   .channel {
-    flex: 0 0 1;
+    flex: 0 0 auto;
     width: 400px;
     height: 360px;
     margin: 5px;
     position: relative;
+  }
+
+  .channel-player-wrapper.viewIntent {
+    position: fixed;
+    top: calc(50vh - 225px);
+    left: 540px;
+    transform: scale(1.5);
+  }
+
+  .channel-player-wrapper.deleteIntent {
+    position: relative;
+    left: 30%;
   }
 
   .channel-overlay {
@@ -111,21 +117,37 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 10;
-
-    transition: opacity 0.4s;
-    opacity: 0;
-
-    background: rgba(0, 0, 0, 0.5);
-
     cursor: pointer;
+    background: rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    flex-direction: row;
   }
 
-  .channel-overlay.isPreview {
-    opacity: 0.8;
+  .channel-overlay-delete,
+  .channel-overlay-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 10;
   }
 
-  .channel-player-wrapper {
-    transition: transform 0.4s;
+  .channel-overlay-delete {
+    width: 30%;
+    opacity: 0.2;
+  }
+
+  .channel-overlay-preview {
+    width: 70%;
+    opacity: 0.2;
+  }
+
+  .channel-overlay-delete:hover {
+    opacity: 1;
+  }
+
+  .channel-overlay-preview:hover {
+    opacity: 1;
   }
 </style>
