@@ -2,19 +2,14 @@
   export let channelName: string = "";
 
   let embed: Twitch.Embed;
-  let mainPlayerWrapper: HTMLElement;
 
   $: {
     if (channelName) {
       if (!embed) {
-        const wrapperRect = mainPlayerWrapper.getBoundingClientRect();
-
-        console.log("wrapperRect", wrapperRect);
-
         const options: Twitch.EmbedOptions = {
-          width: wrapperRect.width,
-          height: wrapperRect.height,
-          autoplay: false,
+          width: "100%",
+          height: "100%",
+          autoplay: true,
           muted: true,
           parent: ["switchtwitch.com"],
           channel: channelName,
@@ -29,8 +24,6 @@
           player.setQuality("chunked");
 
           player.setMuted(false);
-
-          player.play();
         });
       } else {
         embed.getPlayer().setChannel(channelName);
@@ -39,7 +32,7 @@
   }
 </script>
 
-<div id="main-player-wrapper" bind:this={mainPlayerWrapper}>
+<div id="main-player-wrapper">
   <div id="main-player" />
 </div>
 
@@ -48,5 +41,16 @@
     flex: 1 1 auto;
     margin: 5px;
     background: rgba(0, 0, 0, 0.8);
+    position: relative;
+
+    display: flex;
+    align-items: stretch;
+    align-content: stretch;
+  }
+
+  #main-player {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
   }
 </style>

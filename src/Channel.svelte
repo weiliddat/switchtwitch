@@ -14,13 +14,13 @@
   const previewMouseover = () => {
     viewIntent = true;
 
-    embed.getPlayer().setQuality("720p");
+    embed.getPlayer().setQuality("480p");
   };
 
   const previewMouseout = () => {
     viewIntent = false;
 
-    embed.getPlayer().setQuality("160p");
+    embed.getPlayer().setQuality("360p");
   };
 
   const handleView = () => {
@@ -55,7 +55,7 @@
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
       const player = embed.getPlayer();
 
-      player.setQuality("160p");
+      player.setQuality("360p");
     });
   });
 </script>
@@ -104,6 +104,7 @@
     top: calc(50vh - 225px);
     left: 540px;
     transform: scale(1.5);
+    z-index: 8;
   }
 
   .channel-player-wrapper.deleteIntent {
