@@ -1,9 +1,10 @@
 <script lang="ts">
   import { keyHandler } from "./actions/keyHandler";
+  import About from "./About.svelte";
   import Channel from "./Channel.svelte";
 
   let channelName: string = "";
-  let channelNames: string[] = ["guhrl"];
+  let channelNames: string[] = [];
 
   const addChannel = () => {
     if (channelName && !channelNames.includes(channelName)) {
@@ -14,7 +15,7 @@
   };
 
   const deleteChannel = ({ detail: channelName }) => {
-    channelNames = channelNames.filter(c => c !== channelName);
+    channelNames = channelNames.filter((c) => c !== channelName);
   };
 </script>
 
@@ -35,6 +36,10 @@
     on:keydown_Enter={addChannel}
     placeholder="Channel name, then Enter"
   />
+
+  <div class="spacer"></div>
+
+  <About />
 </div>
 
 <style>

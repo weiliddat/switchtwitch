@@ -21,17 +21,13 @@ body {
   box-sizing: inherit;
 }
 
-a {
-  color: rgb(0, 100, 200);
+a, a:visited {
+  color: rgb(38, 131, 224);
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
-}
-
-a:visited {
-  color: rgb(0, 80, 160);
 }
 
 label {
@@ -72,4 +68,8 @@ button:not(:disabled):active {
 
 button:focus {
   border-color: #666;
+}
+
+.spacer {
+  flex: 1 1 auto;
 }

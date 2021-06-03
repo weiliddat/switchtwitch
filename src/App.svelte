@@ -3,6 +3,7 @@
   import MainPlayer from "./MainPlayer.svelte";
 
   let mainChannelName = "";
+
   const viewChannel = ({ detail: channelName }) => {
     mainChannelName = channelName;
   };
