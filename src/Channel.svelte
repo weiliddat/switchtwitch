@@ -11,6 +11,8 @@
   let deleteIntent = false;
   let embed: Twitch.Embed;
 
+  let onMainPlayer = false;
+
   const previewMouseover = async () => {
     const rect1 = playerWrapper.getBoundingClientRect();
 
@@ -80,7 +82,23 @@
   };
 
   const handleView = () => {
-    dispatch(ChannelEvent.VIEW_CHANNEL, channelName);
+    const mainPlayerWrapper = document.getElementById("main-player-wrapper");
+
+    while (playerWrapper.childNodes.length) {
+      mainPlayerWrapper.appendChild(playerWrapper.childNodes[0]);
+    }
+
+    onMainPlayer = true;
+  };
+
+  const handleClose = () => {
+    const mainPlayerWrapper = document.getElementById("main-player-wrapper");
+
+    while (mainPlayerWrapper.childNodes.length) {
+      playerWrapper.appendChild(mainPlayerWrapper.childNodes[0]);
+    }
+
+    onMainPlayer = false;
   };
 
   const deleteMouseover = () => {
@@ -128,14 +146,25 @@
       <span class="material-icons">delete</span>
     </div>
 
-    <div
-      class="channel-overlay-preview"
-      on:mouseover={previewMouseover}
-      on:mouseout={previewMouseout}
-      on:click={handleView}
-    >
-      <span class="material-icons">visibility</span>
-    </div>
+    {#if onMainPlayer}
+      <div
+        class="channel-overlay-preview"
+        on:mouseover={previewMouseover}
+        on:mouseout={previewMouseout}
+        on:click={handleClose}
+      >
+        <span class="material-icons">close_fullscreen</span>
+      </div>
+    {:else}
+      <div
+        class="channel-overlay-preview"
+        on:mouseover={previewMouseover}
+        on:mouseout={previewMouseout}
+        on:click={handleView}
+      >
+        <span class="material-icons">visibility</span>
+      </div>
+    {/if}
   </div>
 
   <div
@@ -143,6 +172,7 @@
     class="channel-player-wrapper"
     class:viewIntent
     class:deleteIntent
+    class:onMainPlayer
     bind:this={playerWrapper}
   />
 </div>
@@ -168,7 +198,7 @@
     left: 440px;
     width: 600px;
     height: 540px;
-    z-index: 8;
+    z-index: 1;
   }
 
   .channel-player-wrapper.deleteIntent {
@@ -195,7 +225,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.2);
-    z-index: 10;
+    z-index: 2;
   }
 
   .channel-overlay-delete {

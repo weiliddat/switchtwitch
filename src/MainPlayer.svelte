@@ -32,9 +32,7 @@
   }
 </script>
 
-<div id="main-player-wrapper">
-  <div id="main-player" />
-</div>
+<div id="main-player-wrapper" />
 
 <style>
   #main-player-wrapper {
@@ -42,15 +40,5 @@
     margin: 5px;
     background: rgba(0, 0, 0, 0.8);
     position: relative;
-
-    display: flex;
-    align-items: stretch;
-    align-content: stretch;
-  }
-
-  #main-player {
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
   }
 </style>
