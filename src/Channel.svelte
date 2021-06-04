@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, onMount, tick } from "svelte";
   import { ChannelEvent } from "./enums";
 
   export let channelName = "";
@@ -11,18 +11,72 @@
   let deleteIntent = false;
   let embed: Twitch.Embed;
 
-  const previewMouseover = () => {
+  const previewMouseover = async () => {
+    const rect1 = playerWrapper.getBoundingClientRect();
+
     viewIntent = true;
 
     embed.getPlayer().setQuality("480p");
     embed.getPlayer().setMuted(false);
+
+    await tick();
+
+    const rect2 = playerWrapper.getBoundingClientRect();
+
+    const dX = rect1.left - rect2.left;
+    const dY = rect1.top - rect2.top;
+    const dW = rect1.width / rect2.width;
+    const dH = rect1.height / rect2.height;
+
+    playerWrapper.animate(
+      [
+        {
+          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
+        },
+        {
+          transform: `none`,
+        },
+      ],
+      {
+        duration: 200,
+        easing: "linear",
+        fill: "both",
+      },
+    );
   };
 
-  const previewMouseout = () => {
+  const previewMouseout = async () => {
+    const rect1 = playerWrapper.getBoundingClientRect();
+
     viewIntent = false;
 
     embed.getPlayer().setQuality("360p");
     embed.getPlayer().setMuted(true);
+
+    await tick();
+
+    const rect2 = playerWrapper.getBoundingClientRect();
+
+    const dX = rect1.left - rect2.left;
+    const dY = rect1.top - rect2.top;
+    const dW = rect1.width / rect2.width;
+    const dH = rect1.height / rect2.height;
+
+    playerWrapper.animate(
+      [
+        {
+          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
+        },
+        {
+          transform: `none`,
+        },
+      ],
+      {
+        duration: 200,
+        easing: "linear",
+        fill: "both",
+      },
+    );
   };
 
   const handleView = () => {
@@ -43,8 +97,8 @@
 
   onMount(() => {
     const options: Twitch.EmbedOptions = {
-      width: 400,
-      height: 360,
+      width: "100%",
+      height: "100%",
       autoplay: true,
       muted: true,
       parent: ["switchtwitch.com"],
@@ -102,11 +156,18 @@
     position: relative;
   }
 
+  .channel-player-wrapper {
+    width: 400px;
+    height: 360px;
+    position: relative;
+  }
+
   .channel-player-wrapper.viewIntent {
     position: fixed;
     top: calc(50vh - 225px);
-    left: 540px;
-    transform: scale(1.5);
+    left: 440px;
+    width: 600px;
+    height: 540px;
     z-index: 8;
   }
 
