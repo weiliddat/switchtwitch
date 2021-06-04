@@ -223,6 +223,10 @@
         <span class="material-icons">visibility</span>
       </div>
     {/if}
+
+    <div class="channel-overlay-name">
+      {channelName}
+    </div>
   </div>
 
   <div
@@ -284,6 +288,18 @@
 
     display: flex;
     flex-direction: row;
+  }
+
+  .channel-overlay-name {
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+
+    width: 100%;
+    padding: 5px;
+
+    text-align: center;
+    text-transform: uppercase;
   }
 
   .channel-overlay-delete,
