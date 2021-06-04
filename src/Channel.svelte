@@ -9,9 +9,12 @@
   let playerWrapper: HTMLElement;
   let viewIntent = false;
   let deleteIntent = false;
+  let onMainPlayer = false;
   let embed: Twitch.Embed;
 
   const previewMouseover = async () => {
+    if (viewIntent === true) return;
+
     const rect1 = playerWrapper.getBoundingClientRect();
 
     viewIntent = true;
@@ -31,10 +34,12 @@
     playerWrapper.animate(
       [
         {
+          transformOrigin: "top left",
           transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
         },
         {
-          transform: `none`,
+          transformOrigin: "top left",
+          transform: "none",
         },
       ],
       {
@@ -45,7 +50,9 @@
     );
   };
 
-  const previewMouseout = async () => {
+  const previewMouseleave = async () => {
+    if (viewIntent === false) return;
+
     const rect1 = playerWrapper.getBoundingClientRect();
 
     viewIntent = false;
@@ -65,10 +72,12 @@
     playerWrapper.animate(
       [
         {
+          transformOrigin: "top left",
           transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
         },
         {
-          transform: `none`,
+          transformOrigin: "top left",
+          transform: "none",
         },
       ],
       {
@@ -79,15 +88,81 @@
     );
   };
 
-  const handleView = () => {
-    dispatch(ChannelEvent.VIEW_CHANNEL, channelName);
+  const handleView = async () => {
+    if (onMainPlayer === true) return;
+
+    const rect1 = playerWrapper.getBoundingClientRect();
+
+    onMainPlayer = true;
+
+    await tick();
+
+    const rect2 = playerWrapper.getBoundingClientRect();
+
+    const dX = rect1.left - rect2.left;
+    const dY = rect1.top - rect2.top;
+    const dW = rect1.width / rect2.width;
+    const dH = rect1.height / rect2.height;
+
+    playerWrapper.animate(
+      [
+        {
+          transformOrigin: "top left",
+          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
+        },
+        {
+          transformOrigin: "top left",
+          transform: "none",
+        },
+      ],
+      {
+        duration: 200,
+        easing: "linear",
+        fill: "both",
+      },
+    );
+  };
+
+  const handleClose = async () => {
+    if (onMainPlayer === false) return;
+
+    const rect1 = playerWrapper.getBoundingClientRect();
+
+    onMainPlayer = false;
+
+    await tick();
+
+    const rect2 = playerWrapper.getBoundingClientRect();
+
+    const dX = rect1.left - rect2.left;
+    const dY = rect1.top - rect2.top;
+    const dW = rect1.width / rect2.width;
+    const dH = rect1.height / rect2.height;
+
+    playerWrapper.animate(
+      [
+        {
+          transformOrigin: "top left",
+          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
+        },
+        {
+          transformOrigin: "top left",
+          transform: "none",
+        },
+      ],
+      {
+        duration: 200,
+        easing: "linear",
+        fill: "both",
+      },
+    );
   };
 
   const deleteMouseover = () => {
     deleteIntent = true;
   };
 
-  const deleteMouseout = () => {
+  const deleteMouseleave = () => {
     deleteIntent = false;
   };
 
@@ -122,20 +197,26 @@
     <div
       class="channel-overlay-delete"
       on:mouseover={deleteMouseover}
-      on:mouseout={deleteMouseout}
+      on:mouseleave={deleteMouseleave}
       on:click={handleDelete}
     >
       <span class="material-icons">delete</span>
     </div>
 
-    <div
-      class="channel-overlay-preview"
-      on:mouseover={previewMouseover}
-      on:mouseout={previewMouseout}
-      on:click={handleView}
-    >
-      <span class="material-icons">visibility</span>
-    </div>
+    {#if onMainPlayer}
+      <div class="channel-overlay-preview" on:click={handleClose}>
+        <span class="material-icons">close_fullscreen</span>
+      </div>
+    {:else}
+      <div
+        class="channel-overlay-preview"
+        on:mouseover={previewMouseover}
+        on:mouseleave={previewMouseleave}
+        on:click={handleView}
+      >
+        <span class="material-icons">visibility</span>
+      </div>
+    {/if}
   </div>
 
   <div
@@ -143,6 +224,7 @@
     class="channel-player-wrapper"
     class:viewIntent
     class:deleteIntent
+    class:onMainPlayer
     bind:this={playerWrapper}
   />
 </div>
@@ -165,15 +247,24 @@
   .channel-player-wrapper.viewIntent {
     position: fixed;
     top: calc(50vh - 225px);
-    left: 440px;
+    left: 425px;
     width: 600px;
     height: 540px;
-    z-index: 8;
+    z-index: 1;
   }
 
   .channel-player-wrapper.deleteIntent {
     position: relative;
     left: 30%;
+  }
+
+  .channel-player-wrapper.onMainPlayer {
+    position: fixed;
+    top: 5px;
+    left: 425px;
+    height: calc(100vh - 10px);
+    width: calc(100vw - 430px);
+    z-index: 1;
   }
 
   .channel-overlay {
@@ -195,7 +286,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.2);
-    z-index: 10;
+    z-index: 2;
   }
 
   .channel-overlay-delete {

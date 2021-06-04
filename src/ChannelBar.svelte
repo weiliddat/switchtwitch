@@ -7,8 +7,12 @@
   let channelNames: string[] = [];
 
   const addChannel = () => {
-    if (channelName && !channelNames.includes(channelName)) {
-      channelNames = [...channelNames, channelName];
+    const parsed = channelName.includes("twitch.tv")
+      ? new URL(channelName).pathname.slice(1)
+      : channelName.trim();
+
+    if (parsed && !channelNames.includes(parsed)) {
+      channelNames = [...channelNames, parsed];
     }
 
     channelName = "";
@@ -37,7 +41,7 @@
     placeholder="Channel name, then Enter"
   />
 
-  <div class="spacer"></div>
+  <div class="spacer" />
 
   <About />
 </div>
