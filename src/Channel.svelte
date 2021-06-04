@@ -95,6 +95,9 @@
 
     onMainPlayer = true;
 
+    embed.getPlayer().setQuality("chunked");
+    embed.getPlayer().setMuted(false);
+
     await tick();
 
     const rect2 = playerWrapper.getBoundingClientRect();
@@ -129,6 +132,9 @@
     const rect1 = playerWrapper.getBoundingClientRect();
 
     onMainPlayer = false;
+
+    embed.getPlayer().setQuality("480p");
+    embed.getPlayer().setMuted(false);
 
     await tick();
 
