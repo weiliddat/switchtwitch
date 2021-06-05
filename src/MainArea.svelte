@@ -1,7 +1,9 @@
 <mainarea>
   <img src="./SwitchTwitch2-512.png" alt="switch twitch logo" />
   <h1>Switch Twitch</h1>
-  <div>Smooth stream switching</div>
+  <small>Smooth stream switching</small>
+  <small>Automatic mute/unmute</small>
+  <small>Automatic quality switching</small>
 </mainarea>
 
 <style>
