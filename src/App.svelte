@@ -1,9 +1,11 @@
 <script lang="ts">
   import ChannelBar from "./ChannelBar.svelte";
+  import MainArea from "./MainArea.svelte";
 </script>
 
 <main>
   <ChannelBar />
+  <MainArea />
 </main>
 
 <style>

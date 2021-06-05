@@ -24,7 +24,7 @@
 </script>
 
 <div id="channel-bar">
-  {#each channelNames as c}
+  {#each channelNames as c (c)}
     <Channel
       channelName={c}
       on:DELETE_CHANNEL={deleteChannel}
