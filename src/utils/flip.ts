@@ -5,7 +5,7 @@ export class Flip {
     this.elm = elm;
   }
 
-  async flip(cb: CallableFunction) {
+  async run(cb: CallableFunction) {
     const rect1 = this.elm.getBoundingClientRect();
 
     await cb();
@@ -30,7 +30,7 @@ export class Flip {
       ],
       {
         duration: 200,
-        easing: "linear",
+        easing: "ease-in-out",
         fill: "both",
       },
     );

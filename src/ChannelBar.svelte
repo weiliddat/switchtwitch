@@ -11,19 +11,11 @@
 
     channelInput = "";
   };
-
-  const deleteChannel = ({ detail: channelName }) => {
-    channels.deleteChannel(channelName);
-  };
 </script>
 
 <div id="channel-bar">
   {#each $channels as c (c)}
-    <Channel
-      channelName={c}
-      on:DELETE_CHANNEL={deleteChannel}
-      on:VIEW_CHANNEL
-    />
+    <Channel channel={c} />
   {/each}
 
   <input
