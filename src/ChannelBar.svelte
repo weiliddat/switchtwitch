@@ -2,41 +2,27 @@
   import { keyHandler } from "./actions/keyHandler";
   import About from "./About.svelte";
   import Channel from "./Channel.svelte";
+  import { channels } from "./store/channels";
 
-  let channelName: string = "";
-  let channelNames: string[] = [];
+  let channelInput: string = "";
 
   const addChannel = () => {
-    const parsed = channelName.includes("twitch.tv")
-      ? new URL(channelName).pathname.slice(1)
-      : channelName.trim();
+    channels.addChannel(channelInput);
 
-    if (parsed && !channelNames.includes(parsed)) {
-      channelNames = [...channelNames, parsed];
-    }
-
-    channelName = "";
-  };
-
-  const deleteChannel = ({ detail: channelName }) => {
-    channelNames = channelNames.filter((c) => c !== channelName);
+    channelInput = "";
   };
 </script>
 
 <div id="channel-bar">
-  {#each channelNames as c (c)}
-    <Channel
-      channelName={c}
-      on:DELETE_CHANNEL={deleteChannel}
-      on:VIEW_CHANNEL
-    />
+  {#each $channels as c (c)}
+    <Channel channel={c} />
   {/each}
 
   <input
     type="text"
     id="channel-input"
     use:keyHandler
-    bind:value={channelName}
+    bind:value={channelInput}
     on:keydown_Enter={addChannel}
     placeholder="Channel name, then Enter"
   />

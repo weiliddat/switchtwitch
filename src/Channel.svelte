@@ -1,200 +1,12 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount, tick } from "svelte";
-  import { ChannelEvent } from "./enums";
+  import { onMount } from "svelte";
+  import { channels } from "./store/channels";
+  import type { ChannelInterface } from "./store/channels";
 
-  export let channelName = "";
-
-  const dispatch = createEventDispatcher();
-
-  let playerWrapper: HTMLElement;
-  let viewIntent = false;
-  let deleteIntent = false;
-  let onMainPlayer = false;
-  let embed: Twitch.Embed;
-
-  const previewMouseover = async () => {
-    if (viewIntent === true) return;
-
-    const rect1 = playerWrapper.getBoundingClientRect();
-
-    viewIntent = true;
-
-    embed.getPlayer().setQuality("480p");
-    embed.getPlayer().setMuted(false);
-
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
-  };
-
-  const previewMouseleave = async () => {
-    if (viewIntent === false) return;
-
-    const rect1 = playerWrapper.getBoundingClientRect();
-
-    viewIntent = false;
-
-    embed.getPlayer().setQuality("360p");
-    embed.getPlayer().setMuted(true);
-
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
-  };
-
-  const handleView = async () => {
-    if (onMainPlayer === true) return;
-
-    const rect1 = playerWrapper.getBoundingClientRect();
-
-    onMainPlayer = true;
-
-    embed.getPlayer().setQuality("chunked");
-    embed.getPlayer().setMuted(false);
-
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
-  };
-
-  const handleClose = async () => {
-    if (onMainPlayer === false) return;
-
-    const rect1 = playerWrapper.getBoundingClientRect();
-
-    onMainPlayer = false;
-
-    embed.getPlayer().setQuality("480p");
-    embed.getPlayer().setMuted(false);
-
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
-  };
-
-  const deleteMouseover = () => {
-    deleteIntent = true;
-  };
-
-  const deleteMouseleave = () => {
-    deleteIntent = false;
-  };
-
-  const handleDelete = () => {
-    dispatch(ChannelEvent.DELETE_CHANNEL, channelName);
-  };
+  export let channel: ChannelInterface;
 
   onMount(() => {
-    const options: Twitch.EmbedOptions = {
-      width: "100%",
-      height: "100%",
-      autoplay: true,
-      muted: true,
-      parent: ["switchtwitch.com"],
-      channel: channelName,
-      layout: "video",
-    };
-
-    embed = new Twitch.Embed(`channel-${channelName}`, options);
-
-    embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
-      const player = embed.getPlayer();
-
-      player.setQuality("360p");
-      player.setVolume(0.5);
-    });
+    channels.startTwitchEmbed(channel.name);
   });
 </script>
 
@@ -202,40 +14,45 @@
   <div class="channel-overlay">
     <div
       class="channel-overlay-delete"
-      on:mouseover={deleteMouseover}
-      on:mouseleave={deleteMouseleave}
-      on:click={handleDelete}
+      on:mouseover={() =>
+        channels.updateChannel(channel.name, { deleteIntent: true })}
+      on:mouseleave={() =>
+        channels.updateChannel(channel.name, { deleteIntent: false })}
+      on:click={() => channels.deleteChannel(channel.name)}
     >
       <span class="material-icons">delete</span>
     </div>
 
-    {#if onMainPlayer}
-      <div class="channel-overlay-preview" on:click={handleClose}>
+    {#if channel.onMainPlayer}
+      <div
+        class="channel-overlay-preview"
+        on:click={() => channels.stopViewingChannel(channel.name)}
+      >
         <span class="material-icons">close_fullscreen</span>
       </div>
     {:else}
       <div
         class="channel-overlay-preview"
-        on:mouseover={previewMouseover}
-        on:mouseleave={previewMouseleave}
-        on:click={handleView}
+        on:mouseover={() => channels.previewChannel(channel.name)}
+        on:mouseleave={() => channels.stopPreviewingChannel(channel.name)}
+        on:click={() => channels.viewChannel(channel.name)}
       >
         <span class="material-icons">visibility</span>
       </div>
     {/if}
 
     <div class="channel-overlay-name">
-      {channelName}
+      {channel.name}
     </div>
   </div>
 
   <div
-    id="channel-{channelName}"
+    id="channel-{channel.name}"
     class="channel-player-wrapper"
-    class:viewIntent
-    class:deleteIntent
-    class:onMainPlayer
-    bind:this={playerWrapper}
+    class:viewIntent={channel.viewIntent}
+    class:deleteIntent={channel.deleteIntent}
+    class:onMainPlayer={channel.onMainPlayer}
+    bind:this={channel.playerWrapper}
   />
 </div>
 
@@ -260,7 +77,7 @@
     left: 425px;
     width: 600px;
     height: 540px;
-    z-index: 1;
+    z-index: 2;
   }
 
   .channel-player-wrapper.deleteIntent {
@@ -308,7 +125,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.2);
-    z-index: 2;
+    z-index: 3;
   }
 
   .channel-overlay-delete {
