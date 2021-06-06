@@ -1,0 +1,23 @@
+2021-06-06
+ * add changelog
+
+2021-06-05
+ * add feature list
+ * fix side channel deletion bug (keyed items)
+ * add logo and text to main area
+
+2021-06-05
+ * add channel names
+
+2021-06-04
+ * set default quality and mute status when viewing channel on main player
+ * animate viewing a channel on main player instead of a separate instance
+ * animate previewing channels on side bar
+ * new favicon
+
+2021-06-03
+ * short about message
+ * mute/unmute when previewing
+ * main player size should follow window
+ * delete and view channel
+ * initial prototype to preview side bar channels

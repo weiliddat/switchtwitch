@@ -5,6 +5,7 @@
     multi-Twitch stream watch party tool
   </div>
   <div>by <a href="https://twitter.com/weiliddat">@weiliddat</a></div>
+  <div><a href="./changelog.txt">Changelog</a></div>
 </about>
 
 <style>
