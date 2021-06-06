@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, tick } from "svelte";
   import { ChannelEvent } from "./enums";
+  import { Flip } from "./utils/flip";
 
   export let channelName = "";
 
@@ -15,153 +16,61 @@
   const previewMouseover = async () => {
     if (viewIntent === true) return;
 
-    const rect1 = playerWrapper.getBoundingClientRect();
+    const playerWrapperFlip = new Flip(playerWrapper);
 
-    viewIntent = true;
+    playerWrapperFlip.flip(async () => {
+      viewIntent = true;
 
-    embed.getPlayer().setQuality("480p");
-    embed.getPlayer().setMuted(false);
+      embed.getPlayer().setQuality("480p");
+      embed.getPlayer().setMuted(false);
 
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
+      await tick();
+    });
   };
 
   const previewMouseleave = async () => {
     if (viewIntent === false) return;
 
-    const rect1 = playerWrapper.getBoundingClientRect();
+    const playerWrapperFlip = new Flip(playerWrapper);
 
-    viewIntent = false;
+    playerWrapperFlip.flip(async () => {
+      viewIntent = false;
 
-    embed.getPlayer().setQuality("360p");
-    embed.getPlayer().setMuted(true);
+      embed.getPlayer().setQuality("360p");
+      embed.getPlayer().setMuted(true);
 
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
+      await tick();
+    });
   };
 
   const handleView = async () => {
     if (onMainPlayer === true) return;
 
-    const rect1 = playerWrapper.getBoundingClientRect();
+    const playerWrapperFlip = new Flip(playerWrapper);
 
-    onMainPlayer = true;
+    playerWrapperFlip.flip(async () => {
+      onMainPlayer = true;
 
-    embed.getPlayer().setQuality("chunked");
-    embed.getPlayer().setMuted(false);
+      embed.getPlayer().setQuality("chunked");
+      embed.getPlayer().setMuted(false);
 
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
+      await tick();
+    });
   };
 
   const handleClose = async () => {
     if (onMainPlayer === false) return;
 
-    const rect1 = playerWrapper.getBoundingClientRect();
+    const playerWrapperFlip = new Flip(playerWrapper);
 
-    onMainPlayer = false;
+    playerWrapperFlip.flip(async () => {
+      onMainPlayer = false;
 
-    embed.getPlayer().setQuality("480p");
-    embed.getPlayer().setMuted(false);
+      embed.getPlayer().setQuality("480p");
+      embed.getPlayer().setMuted(false);
 
-    await tick();
-
-    const rect2 = playerWrapper.getBoundingClientRect();
-
-    const dX = rect1.left - rect2.left;
-    const dY = rect1.top - rect2.top;
-    const dW = rect1.width / rect2.width;
-    const dH = rect1.height / rect2.height;
-
-    playerWrapper.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `matrix(${dW}, 0, 0, ${dH}, ${dX}, ${dY})`,
-        },
-        {
-          transformOrigin: "top left",
-          transform: "none",
-        },
-      ],
-      {
-        duration: 200,
-        easing: "linear",
-        fill: "both",
-      },
-    );
+      await tick();
+    });
   };
 
   const deleteMouseover = () => {
