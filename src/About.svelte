@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import Settings from "./Settings.svelte";
 
   let aboutModal;
-  let modalOpen = false;
+  let aboutModalOpen = false;
+  let settingsModalOpen = false;
 
   onMount(() => {
     fetch("/about.html")
@@ -12,46 +14,79 @@
 </script>
 
 <about>
-  <div>Switch Twitch</div>
-
   <div>
-    An <a
-      href="https://github.com/weiliddat/switchtwitch"
-      target="_blank"
-      rel="nofollow noreferrer">open source</a
-    >
-    Twitch channel quick switcher
-  </div>
-
-  <div>
-    by <a href="https://twitter.com/weiliddat" rel="nofollow noreferrer"
-      >@weiliddat</a
+    Switch Twitch by <a
+      href="https://twitter.com/weiliddat"
+      rel="nofollow noreferrer">@weiliddat</a
     >
   </div>
 
-  <div>
-    <a
+  <div class="meta-nav">
+    <button
       href="/about.html"
       target="_blank"
-      on:click|preventDefault={() => (modalOpen = true)}>About</a
+      on:click|preventDefault={() => (aboutModalOpen = true)}
     >
+      <span class="material-icons">info</span>
+    </button>
+
+    <button on:click|preventDefault={() => (settingsModalOpen = true)}>
+      <span class="material-icons">settings</span>
+    </button>
   </div>
 
-  <div id="about-modal" class:modalOpen on:click={() => (modalOpen = false)}>
+  <div
+    id="about-modal"
+    class="modal"
+    class:modal-open={aboutModalOpen}
+    on:click={() => (aboutModalOpen = false)}
+  >
     <div id="about-modal-content">
       {@html aboutModal}
+    </div>
+  </div>
+
+  <div
+    id="settings-modal"
+    class="modal"
+    class:modal-open={settingsModalOpen}
+    on:click={() => (settingsModalOpen = false)}
+  >
+    <div id="settings-modal-content">
+      <Settings />
     </div>
   </div>
 </about>
 
 <style>
   about {
-    padding: 25px 10px;
-    text-align: center;
+    width: 100%;
+    padding: 25px;
     color: #ccc;
+
+    display: flex;
+    justify-content: space-between;
   }
 
-  #about-modal {
+  about > * {
+    width: 30%;
+  }
+
+  .meta-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .meta-nav button {
+    cursor: pointer;
+  }
+
+  .meta-nav button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -59,18 +94,21 @@
     height: 100%;
     background: transparent;
     z-index: 4;
-
     display: none;
+  }
 
+  .modal.modal-open {
+    display: flex;
+  }
+
+  #about-modal,
+  #settings-modal {
     align-items: center;
     justify-content: center;
   }
 
-  #about-modal.modalOpen {
-    display: flex;
-  }
-
-  #about-modal-content {
+  #about-modal-content,
+  #settings-modal-content {
     width: 80%;
     height: 80%;
     padding: 25px;
