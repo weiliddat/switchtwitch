@@ -1,5 +1,11 @@
+upcoming
+ * settings
+ * playlist
+
 2021-06-06
  * add changelog
+ * refactor state management
+ * viewing stream will automatically close other streams on main player
 
 2021-06-05
  * add feature list

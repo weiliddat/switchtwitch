@@ -77,7 +77,7 @@
     left: 425px;
     width: 600px;
     height: 540px;
-    z-index: 1;
+    z-index: 2;
   }
 
   .channel-player-wrapper.deleteIntent {
@@ -125,7 +125,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.2);
-    z-index: 2;
+    z-index: 3;
   }
 
   .channel-overlay-delete {

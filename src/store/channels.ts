@@ -1,6 +1,6 @@
 import { tick } from "svelte";
 import { writable } from "svelte/store";
-import { Flip } from "../utils/flip";
+import { flip } from "../utils/flip";
 
 export interface ChannelInterface {
   name: string;
@@ -26,16 +26,14 @@ const defaultChannelOptions = {
 };
 
 const createChannelStore = function () {
-  const channels = writable<ChannelInterface[]>([
-    { name: "playapex", ...defaultChannelOptions },
-  ]);
+  const channelStore = writable<ChannelInterface[]>([]);
 
   const addChannel = (input) => {
     const parsed: string = input.includes("twitch.tv")
       ? new URL(input).pathname.slice(1)
       : input.trim();
 
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       if (parsed && !cs.find((c) => c.name === parsed)) {
         return [...cs, { name: parsed, ...defaultChannelOptions }];
       }
@@ -44,7 +42,7 @@ const createChannelStore = function () {
   };
 
   const startTwitchEmbed = (channelName: string) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel) {
@@ -75,7 +73,7 @@ const createChannelStore = function () {
     channelName: string,
     data: Partial<ChannelInterface>,
   ) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       let channel = cs.find((c) => c.name === channelName);
 
       if (channel) {
@@ -88,16 +86,14 @@ const createChannelStore = function () {
     });
 
   const deleteChannel = (channelName: string) =>
-    channels.update((cs) => cs.filter((c) => c.name !== channelName));
+    channelStore.update((cs) => cs.filter((c) => c.name !== channelName));
 
   const previewChannel = (channelName: string) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel && channel.playerWrapper) {
-        const flip = new Flip(channel.playerWrapper);
-
-        flip.run(async () => {
+        flip(channel.playerWrapper, async () => {
           channel.viewIntent = true;
           channel.embed.getPlayer().setQuality("480p");
           channel.embed.getPlayer().setMuted(false);
@@ -110,13 +106,11 @@ const createChannelStore = function () {
     });
 
   const stopPreviewingChannel = (channelName: string) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel && channel.playerWrapper) {
-        const flip = new Flip(channel.playerWrapper);
-
-        flip.run(async () => {
+        flip(channel.playerWrapper, async () => {
           channel.viewIntent = false;
           channel.embed.getPlayer().setQuality("360p");
           channel.embed.getPlayer().setMuted(true);
@@ -129,13 +123,22 @@ const createChannelStore = function () {
     });
 
   const viewChannel = (channelName) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel && channel.playerWrapper) {
-        const flip = new Flip(channel.playerWrapper);
+        cs.filter((c) => c !== channel && c.onMainPlayer).forEach((c) => {
+          flip(c.playerWrapper, async () => {
+            c.onMainPlayer = false;
+            c.viewIntent = false;
+            c.embed.getPlayer().setQuality("360p");
+            c.embed.getPlayer().setMuted(true);
 
-        flip.run(async () => {
+            await tick();
+          });
+        });
+
+        flip(channel.playerWrapper, async () => {
           channel.onMainPlayer = true;
           channel.embed.getPlayer().setQuality("chunked");
           channel.embed.getPlayer().setMuted(false);
@@ -148,13 +151,11 @@ const createChannelStore = function () {
     });
 
   const stopViewingChannel = (channelName) =>
-    channels.update((cs) => {
+    channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel && channel.playerWrapper) {
-        const flip = new Flip(channel.playerWrapper);
-
-        flip.run(async () => {
+        flip(channel.playerWrapper, async () => {
           channel.onMainPlayer = false;
 
           channel.embed.getPlayer().setQuality("360p");
@@ -168,7 +169,7 @@ const createChannelStore = function () {
     });
 
   return {
-    subscribe: channels.subscribe,
+    subscribe: channelStore.subscribe,
     addChannel,
     updateChannel,
     startTwitchEmbed,
