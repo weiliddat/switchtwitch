@@ -1,6 +1,7 @@
 import { tick } from "svelte";
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { flip } from "../utils/flip";
+import { settings } from "./settings";
 
 export interface ChannelInterface {
   name: string;
@@ -93,7 +94,10 @@ const createChannelStore = function () {
 
       if (channel && channel.playerWrapper) {
         flip(channel.playerWrapper, async () => {
-          channel.viewIntent = true;
+          if (get(settings).usePreview) {
+            channel.viewIntent = true;
+          }
+
           channel.embed.getPlayer().setQuality("480p");
           channel.embed.getPlayer().setMuted(false);
 
@@ -130,6 +134,7 @@ const createChannelStore = function () {
           flip(c.playerWrapper, async () => {
             c.onMainPlayer = false;
             c.viewIntent = false;
+
             c.embed.getPlayer().setQuality("360p");
             c.embed.getPlayer().setMuted(true);
 
