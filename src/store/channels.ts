@@ -1,7 +1,7 @@
 import { tick } from "svelte";
 import { get, writable } from "svelte/store";
 import { flip } from "../utils/flip";
-import { settings } from "./settings";
+import { settings as settingsStore, SettingsInterface } from "./settings";
 
 export interface ChannelInterface {
   name: string;
@@ -15,19 +15,26 @@ export interface ChannelInterface {
   playing: boolean;
 }
 
-const defaultChannelOptions = {
-  playerWrapper: null,
-  embed: null,
-  viewIntent: false,
-  deleteIntent: false,
-  onMainPlayer: false,
-  quality: "360p",
-  muted: true,
-  playing: false,
-};
-
 const createChannelStore = function () {
-  const channelStore = writable<ChannelInterface[]>([]);
+  let settings: SettingsInterface;
+
+  const settingsUnsubscribe = settingsStore.subscribe((s) => (settings = s));
+
+  const channelStore = writable<ChannelInterface[]>(
+    [],
+    () => () => settingsUnsubscribe(),
+  );
+
+  const defaultChannelOptions = {
+    playerWrapper: null,
+    embed: null,
+    viewIntent: false,
+    deleteIntent: false,
+    onMainPlayer: false,
+    quality: settings.qualitySidebar,
+    muted: true,
+    playing: false,
+  };
 
   const addChannel = (input) => {
     const parsed: string = input.includes("twitch.tv")
@@ -61,8 +68,14 @@ const createChannelStore = function () {
         channel.embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
           const player = channel.embed.getPlayer();
 
-          player.setQuality("360p");
+          console.log(player.getQualities());
+
+          player.setQuality(settings.qualitySidebar);
           player.setVolume(0.5);
+        });
+
+        channel.embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
+          console.log(channel.embed.getPlayer().getQualities());
         });
       }
 
@@ -92,17 +105,23 @@ const createChannelStore = function () {
     channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
+      const run = async () => {
+        if (settings.usePreview) {
+          channel.viewIntent = true;
+        }
+
+        channel.embed.getPlayer().setQuality(settings.qualityPreview);
+        channel.embed.getPlayer().setMuted(false);
+
+        await tick();
+      };
+
       if (channel && channel.playerWrapper) {
-        flip(channel.playerWrapper, async () => {
-          if (get(settings).usePreview) {
-            channel.viewIntent = true;
-          }
-
-          channel.embed.getPlayer().setQuality("480p");
-          channel.embed.getPlayer().setMuted(false);
-
-          await tick();
-        });
+        if (!settings.reducedAnimations) {
+          flip(channel.playerWrapper, run);
+        } else {
+          run();
+        }
       }
 
       return cs;
@@ -112,14 +131,20 @@ const createChannelStore = function () {
     channelStore.update((cs) => {
       const channel = cs.find((c) => c.name === channelName);
 
-      if (channel && channel.playerWrapper) {
-        flip(channel.playerWrapper, async () => {
-          channel.viewIntent = false;
-          channel.embed.getPlayer().setQuality("360p");
-          channel.embed.getPlayer().setMuted(true);
+      const run = async () => {
+        channel.viewIntent = false;
+        channel.embed.getPlayer().setQuality(settings.qualitySidebar);
+        channel.embed.getPlayer().setMuted(true);
 
-          await tick();
-        });
+        await tick();
+      };
+
+      if (channel && channel.playerWrapper) {
+        if (!settings.reducedAnimations) {
+          flip(channel.playerWrapper, run);
+        } else {
+          run();
+        }
       }
 
       return cs;
@@ -131,24 +156,36 @@ const createChannelStore = function () {
 
       if (channel && channel.playerWrapper) {
         cs.filter((c) => c !== channel && c.onMainPlayer).forEach((c) => {
-          flip(c.playerWrapper, async () => {
+          const run = async () => {
             c.onMainPlayer = false;
             c.viewIntent = false;
 
-            c.embed.getPlayer().setQuality("360p");
+            c.embed.getPlayer().setQuality(settings.qualitySidebar);
             c.embed.getPlayer().setMuted(true);
 
             await tick();
-          });
+          };
+
+          if (!settings.reducedAnimations) {
+            flip(channel.playerWrapper, run);
+          } else {
+            run();
+          }
         });
 
-        flip(channel.playerWrapper, async () => {
+        const run = async () => {
           channel.onMainPlayer = true;
-          channel.embed.getPlayer().setQuality("chunked");
+          channel.embed.getPlayer().setQuality(settings.qualityMain);
           channel.embed.getPlayer().setMuted(false);
 
           await tick();
-        });
+        };
+
+        if (!settings.reducedAnimations) {
+          flip(channel.playerWrapper, run);
+        } else {
+          run();
+        }
       }
 
       return cs;
@@ -159,14 +196,20 @@ const createChannelStore = function () {
       const channel = cs.find((c) => c.name === channelName);
 
       if (channel && channel.playerWrapper) {
-        flip(channel.playerWrapper, async () => {
+        const run = async () => {
           channel.onMainPlayer = false;
 
-          channel.embed.getPlayer().setQuality("360p");
+          channel.embed.getPlayer().setQuality(settings.qualityPreview);
           channel.embed.getPlayer().setMuted(true);
 
           await tick();
-        });
+        };
+
+        if (!settings.reducedAnimations) {
+          flip(channel.playerWrapper, run);
+        } else {
+          run();
+        }
       }
 
       return cs;

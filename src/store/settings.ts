@@ -1,25 +1,66 @@
 import { writable } from "svelte/store";
 
 export interface SettingsInterface {
-  lastPlaylist: string;
   usePreview: boolean;
+  loadChat: boolean;
+  reducedAnimations: boolean;
+  qualitySidebar: Qualities;
+  qualityPreview: Qualities;
+  qualityMain: Qualities;
 }
 
+export enum Qualities {
+  "160p" = "160p",
+  "360p" = "360p",
+  "480p" = "480p",
+  "720p60" = "720p60",
+  "source" = "chunked",
+  "auto" = "auto",
+}
+
+export const qualities = Object.keys(Qualities).map((label) => ({
+  label,
+  value: Qualities[label],
+}));
+
 const defaultSettings: SettingsInterface = {
-  lastPlaylist: "",
   usePreview: true,
+  loadChat: false,
+  reducedAnimations: false,
+  qualitySidebar: Qualities["360p"],
+  qualityPreview: Qualities["480p"],
+  qualityMain: Qualities.source,
 };
 
 const loadSettings = () => {
   const data: SettingsInterface = { ...defaultSettings };
 
-  data.lastPlaylist =
-    localStorage.getItem("lastPlaylist") ?? defaultSettings.lastPlaylist;
-
   data.usePreview =
     localStorage.getItem("usePreview") !== null
       ? localStorage.getItem("usePreview") === "true"
       : defaultSettings.usePreview;
+
+  data.loadChat =
+    localStorage.getItem("loadChat") !== null
+      ? localStorage.getItem("loadChat") === "true"
+      : defaultSettings.loadChat;
+
+  data.reducedAnimations =
+    localStorage.getItem("reducedAnimations") !== null
+      ? localStorage.getItem("reducedAnimations") === "true"
+      : defaultSettings.reducedAnimations;
+
+  data.qualitySidebar =
+    (localStorage.getItem("qualitySidebar") as Qualities) ??
+    defaultSettings.qualitySidebar;
+
+  data.qualityPreview =
+    (localStorage.getItem("qualityPreview") as Qualities) ??
+    defaultSettings.qualityPreview;
+
+  data.qualityMain =
+    (localStorage.getItem("qualityMain") as Qualities) ??
+    defaultSettings.qualityMain;
 
   return data;
 };
