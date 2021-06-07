@@ -14,7 +14,7 @@ declare namespace Twitch {
 
   interface EmbedOptions {
     /* Required if your site is embedded on any domain(s) other than the one that instantiates the Twitch embed.Example parent parameter: ["streamernews.example.com", "embed.example.com"]. */
-    parent: string[];
+    parent?: string[];
     /* Maximum width of the rendered element, in pixels. This can be expressed as a percentage, by passing a string like 100%. Minimum: 340. Default: 940. */
     width: number | string;
     /* Height of the rendered element, in pixels. This can be expressed as a percentage, by passing a string like 50%. Minimum: 400. Default: 480. */
@@ -88,7 +88,7 @@ declare namespace Twitch {
     width: number;
     height: number;
     channel: string;
-    parent: string[];
+    parent?: string[];
     autoplay?: boolean;
     muted?: boolean;
     time?: string;

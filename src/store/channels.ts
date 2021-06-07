@@ -30,7 +30,7 @@ const createChannelStore = function () {
 
   const addChannel = (input) => {
     const parsed: string = input.includes("twitch.tv")
-      ? new URL(input).pathname.slice(1)
+      ? new URL(input).pathname.replace(/\//g, "")
       : input.trim();
 
     channelStore.update((cs) => {
@@ -51,7 +51,6 @@ const createChannelStore = function () {
           height: "100%",
           autoplay: true,
           muted: true,
-          parent: ["switchtwitch.com"],
           channel: channel.name,
           layout: "video",
         };
