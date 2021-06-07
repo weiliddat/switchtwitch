@@ -49,6 +49,9 @@ SwitchTwitch is [open source](https://github.com/weiliddat/switchtwitch) and sub
 
 # Changelog
 
+2021-06-07
+* add quality, preview, and animation settings
+
 2021-06-06
 * add changelog
 * refactor state management
