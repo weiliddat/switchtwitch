@@ -1,7 +1,7 @@
 import { tick } from "svelte";
-import { get, writable } from "svelte/store";
+import { writable } from "svelte/store";
 import { flip } from "../utils/flip";
-import { settings } from "./settings";
+import { settings as settingsStore, SettingsInterface } from "./settings";
 
 export interface ChannelInterface {
   name: string;
@@ -27,7 +27,13 @@ const defaultChannelOptions = {
 };
 
 const createChannelStore = function () {
-  const channelStore = writable<ChannelInterface[]>([]);
+  let settings: SettingsInterface;
+
+  const unsubscribeSettings = settingsStore.subscribe((s) => {
+    settings = s;
+  });
+
+  const channelStore = writable<ChannelInterface[]>([], () => () => unsubscribeSettings());
 
   const addChannel = (input) => {
     const parsed: string = input.includes("twitch.tv")
@@ -95,7 +101,7 @@ const createChannelStore = function () {
 
       if (channel && channel.playerWrapper) {
         flip(channel.playerWrapper, async () => {
-          if (get(settings).usePreview) {
+          if (settings.usePreview) {
             channel.viewIntent = true;
           }
 
