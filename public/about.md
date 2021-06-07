@@ -24,7 +24,6 @@ However, unless this explodes in popularity, I think bandwidth usage will be pre
 
 Give me suggestions, feedback, encouragement on [GitHub](https://github.com/weiliddat/switchtwitch) or [Twitter](twitter.com/weiliddat)!
 
-
 # Upcoming Features
 
 * Add more settings
@@ -43,9 +42,6 @@ I don't collect any data.
 Twitch is embedded and can access your profile if you're logged on Twitch, and I assume also collects data for their service.
 
 SwitchTwitch is [open source](https://github.com/weiliddat/switchtwitch) and subject to the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
-
-# 
-
 
 # Changelog
 
