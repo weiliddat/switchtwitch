@@ -20,11 +20,6 @@ const createChannelStore = function () {
 
   const settingsUnsubscribe = settingsStore.subscribe((s) => (settings = s));
 
-  const channelStore = writable<ChannelInterface[]>(
-    [],
-    () => () => settingsUnsubscribe(),
-  );
-
   const defaultChannelOptions = {
     playerWrapper: null,
     embed: null,
@@ -36,6 +31,18 @@ const createChannelStore = function () {
     playing: false,
   };
 
+  const hash = window.location.hash;
+  const prevChannels = hash
+    .slice(1)
+    .split(",")
+    .filter((c) => c)
+    .map((name) => ({ name, ...defaultChannelOptions }));
+
+  const channelStore = writable<ChannelInterface[]>(
+    prevChannels,
+    () => () => settingsUnsubscribe(),
+  );
+
   const addChannel = (input) => {
     const parsed: string = input.includes("twitch.tv")
       ? new URL(input).pathname.replace(/\//g, "")
@@ -43,7 +50,14 @@ const createChannelStore = function () {
 
     channelStore.update((cs) => {
       if (parsed && !cs.find((c) => c.name === parsed)) {
-        return [...cs, { name: parsed, ...defaultChannelOptions }];
+        const channels = [...cs, { name: parsed, ...defaultChannelOptions }];
+        const channelHash = channels.map((c) => c.name).join(",");
+        window.history.pushState(
+          { channel: parsed },
+          parsed,
+          `#${channelHash}`,
+        );
+        return channels;
       }
       return cs;
     });
