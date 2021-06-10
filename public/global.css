@@ -21,7 +21,8 @@ body {
   box-sizing: inherit;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: rgb(38, 131, 224);
   text-decoration: none;
 }
@@ -41,7 +42,7 @@ textarea {
   font-size: inherit;
   -webkit-padding: 0.4em 0;
   padding: 0.4em;
-  margin: 0 0 0.5em 0;
+  margin: 0.25em 0;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 2px;
@@ -61,10 +62,15 @@ button {
 
   width: 36px;
   height: 36px;
-  
+
   color: #f4f4f4;
   background: transparent;
   outline: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 button:disabled {

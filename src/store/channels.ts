@@ -1,5 +1,5 @@
 import { tick } from "svelte";
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import { flip } from "../utils/flip";
 import { settings as settingsStore, SettingsInterface } from "./settings";
 
@@ -43,21 +43,22 @@ const createChannelStore = function () {
     () => () => settingsUnsubscribe(),
   );
 
-  const addChannel = (input) => {
-    const parsed: string = input.includes("twitch.tv")
-      ? new URL(input).pathname.replace(/\//g, "")
-      : input.trim();
+  const addChannel = (input: string) => {
+    const parsedNames: string[] = input
+      .split(",")
+      .map((name) =>
+        name.includes("twitch.tv")
+          ? /twitch\.tv\/([a-zA-Z0-9_]*)/i.exec(name)[1]
+          : input.trim(),
+      );
 
     channelStore.update((cs) => {
-      if (parsed && !cs.find((c) => c.name === parsed)) {
-        const channels = [...cs, { name: parsed, ...defaultChannelOptions }];
-        const channelHash = channels.map((c) => c.name).join(",");
-        window.history.pushState(
-          { channel: parsed },
-          parsed,
-          `#${channelHash}`,
-        );
-        return channels;
+      if (parsedNames.length) {
+        for (const channelName of parsedNames) {
+          if (!cs.find((c) => c.name === channelName)) {
+            cs = [...cs, { name: channelName, ...defaultChannelOptions }];
+          }
+        }
       }
       return cs;
     });
@@ -82,14 +83,8 @@ const createChannelStore = function () {
         channel.embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
           const player = channel.embed.getPlayer();
 
-          console.log(player.getQualities());
-
           player.setQuality(settings.qualitySidebar);
           player.setVolume(0.5);
-        });
-
-        channel.embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
-          console.log(channel.embed.getPlayer().getQualities());
         });
       }
 
@@ -243,3 +238,19 @@ const createChannelStore = function () {
 };
 
 export const channels = createChannelStore();
+
+export const permalink = derived<typeof channels, string>(
+  channels,
+  ($channels, set) => {
+    const channelNames = $channels.map((c) => c.name)
+    const channelNameString = channelNames.join(",");
+
+    window.history.pushState(
+      { channels: channelNames },
+      channelNameString,
+      `#${channelNameString}`,
+    );
+
+    set(window.location.href);
+  },
+);

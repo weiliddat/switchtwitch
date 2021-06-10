@@ -1,16 +1,9 @@
 <script lang="ts">
-  import { keyHandler } from "./actions/keyHandler";
   import About from "./About.svelte";
   import Channel from "./Channel.svelte";
+  import ChannelInput from "./ChannelInput.svelte";
+  import Permalink from "./Permalink.svelte";
   import { channels } from "./store/channels";
-
-  let channelInput: string = "";
-
-  const addChannel = () => {
-    channels.addChannel(channelInput);
-
-    channelInput = "";
-  };
 </script>
 
 <div id="channel-bar">
@@ -18,14 +11,8 @@
     <Channel channel={c} />
   {/each}
 
-  <input
-    type="text"
-    id="channel-input"
-    use:keyHandler
-    bind:value={channelInput}
-    on:keydown_Enter={addChannel}
-    placeholder="Channel name, then Enter"
-  />
+  <ChannelInput />
+  <Permalink />
 
   <div class="spacer" />
 
@@ -61,10 +48,5 @@
   #channel-bar {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.2);
-  }
-
-  #channel-input {
-    width: 80%;
-    margin: 20px 0;
   }
 </style>

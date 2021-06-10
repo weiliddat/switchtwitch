@@ -78,14 +78,6 @@
     justify-content: flex-end;
   }
 
-  .meta-nav button {
-    cursor: pointer;
-  }
-
-  .meta-nav button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-
   .modal {
     position: fixed;
     top: 0;
